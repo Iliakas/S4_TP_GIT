@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 typedef struct Date{
     char jour[3];
@@ -42,7 +43,7 @@ liste *creer_produit(){
     scanf("%s",nv->cellule.ref);
     printf("Donner le montant du produit: ");
     scanf("%f",&nv->cellule.montant);
-    printf("Donner la date d'achat du produit: ");
+    printf("Donner la date d'achat du produit: \n");
     printf("Jour: ");
     scanf("%s",nv->cellule.date_achat.jour);
     printf("Mois: ");
@@ -54,8 +55,8 @@ liste *creer_produit(){
 }
 
 void afficher_produit(liste *produit){
-    if(est_vide(produit)==1){
-        printf("la liste est vide");
+    if(est_vide(produit)){
+        printf("la liste est vide\n");
     }else{
             printf("Nom du produit: %s\n",produit->cellule.nom_produit);
             printf("Référence du produit: %s\n",produit->cellule.ref);
@@ -80,12 +81,12 @@ liste *ajouter_debut(liste *debut){
 
 liste *ajouter_fin(liste *debut){
     if(est_vide(debut)==1){
-        debut=creer_produit(debut);
+        debut=creer_produit();
         return debut;
     }
     else{
         liste *ptr=debut;
-        liste *nv=creer_produit(debut);
+        liste *nv=creer_produit();
         while(ptr->suiv!=NULL){
             ptr=ptr->suiv;
         }
@@ -135,43 +136,54 @@ liste *suppD_liste(liste *debut){
 }
 
 liste *suppF_liste(liste *debut){
-    liste *ptr=debut;
     if(est_vide(debut)==1){
         printf("La liste est vide\n");
+        return debut;
+    }
+    else if(debut->suiv == NULL){
+        free(debut);
+        return NULL;
     }
     else{
-        while(ptr->suiv->suiv!=NULL){
-            ptr=ptr->suiv;
-        }
-        free(ptr->suiv);
-        ptr->suiv=NULL;
-    }
-}
-
-liste *rembourser_produit(liste *debut, char *ref){
-    liste *ptr=debut->suiv;
-    int i=0;
-    liste *temp=ptr;
-    if(strcmp(debut->cellule.ref, ref) == 0){
-        suppD_liste(debut);
-    }
-    else{
-        while(ptr!=NULL){
-            ptr=ptr->suiv;
-            i++;
-        }
-        if(i==longueur(debut)){
-            printf("Le produit n'existe pas\n");
-        }
-        else{
-            for(int j=0;j<i-1;j++){
-                temp=temp->suiv;
+        liste *ptr=debut;
+                while(ptr->suiv->suiv!=NULL){
+                    ptr=ptr->suiv;
+                }
+                free(ptr->suiv);
+                ptr->suiv = NULL;
+                return debut;
             }
-            temp->suiv=temp->suiv->suiv;
-            free(ptr);
         }
+liste *rembourser_produit(liste *debut, char *ref){
+    if(est_vide(debut)){
+        printf("La liste est vide\n");
+        return debut;
     }
 
+    liste *ptr = debut;
+    if(strcmp(debut->cellule.ref, ref) == 0){
+        return suppD_liste(debut);
+    }
+
+    liste *temp = NULL;
+    while(ptr != NULL && strcmp(ptr->cellule.ref, ref) != 0){
+        temp = ptr;
+        ptr = ptr->suiv;
+    }
+
+    if(ptr == NULL){
+        return suppF_liste(debut);
+        return debut;
+    }
+
+    if(ptr->suiv == NULL){
+        return suppF_liste(ptr);
+    }
+    else{
+        temp->suiv = ptr->suiv;
+        free(ptr);
+        return debut;
+    }
 }
 
 int main() {
